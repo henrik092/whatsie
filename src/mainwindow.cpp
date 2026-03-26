@@ -228,23 +228,6 @@ void MainWindow::initSettingWidget() {
   connect(m_settingsWidget, &SettingsWidget::notify, m_settingsWidget,
           [=](QString message) { showNotification("", message); });
 
-  connect(m_settingsWidget, &SettingsWidget::updateFullWidthView,
-          m_settingsWidget, [=](bool checked) {
-            if (m_webEngine && m_webEngine->page()) {
-              WebEnginePage *wp =
-                  qobject_cast<WebEnginePage *>(m_webEngine->page());
-              wp->injectClassChangeObserver();
-              if (checked)
-                m_webEngine->page()->runJavaScript(
-                    "document.querySelector('body').classList.add('whatsie-"
-                    "full-view');");
-              else
-                m_webEngine->page()->runJavaScript(
-                    "document.querySelector('body').classList.remove('"
-                    "whatsie-full-view');");
-            }
-          });
-
   m_settingsWidget->appLockSetChecked(SettingsManager::instance()
                                           .settings()
                                           .value("lockscreen", false)

@@ -118,7 +118,6 @@ void WebEnginePage::handleLoadFinished(bool ok) {
 
   if (ok) {
     injectPreventScrollWheelZoomHelper();
-    injectClassChangeObserver();
     injectNewChatJavaScript();
   }
 }
@@ -316,37 +315,6 @@ void WebEnginePage::injectPreventScrollWheelZoomHelper() {
                         }
                     })();
                 )";
-  this->runJavaScript(js);
-}
-
-void WebEnginePage::injectClassChangeObserver() {
-  QString js =
-      R"(
-        var cc_observer = new MutationObserver(() => {
-            var haveFullView = document.body.classList.contains('whatsie-full-view');
-            var container = document.querySelector('#app > .app-wrapper-web > .two');
-            if(container){
-                if(haveFullView){
-                    container.style.width = '100%';
-                    container.style.height = '100%';
-                    container.style.top = '0';
-                    container.style.maxWidth = 'unset';
-                }else{
-                    container.style.width = null;
-                    container.style.height = null;
-                    container.style.top = null;
-                    container.style.maxWidth = null;
-                }
-                cc_observer.disconnect();
-            }
-        });
-        cc_observer.observe(document.body, {
-            attributes: true,
-            attributeFilter: ['class'],
-            childList: false,
-            characterData: false
-        });
-        )";
   this->runJavaScript(js);
 }
 

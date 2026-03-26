@@ -262,11 +262,6 @@ void SettingsWidget::refresh() {
                              .toString()));
 
   ui->cookieSize->setText(Utils::refreshCacheSize(persistentStoragePath()));
-
-  emit updateFullWidthView(SettingsManager::instance()
-                               .settings()
-                               .value("fullWidthView", true)
-                               .toBool());
 }
 
 void SettingsWidget::updateDefaultUAButton(const QString engineUA) {

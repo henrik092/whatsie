@@ -27,7 +27,6 @@ signals:
   void zoomChanged();
   void zoomMaximizedChanged();
   void appAutoLockChanged();
-  void updateFullWidthView(bool checked);
 
 public:
   explicit SettingsWidget(QWidget *parent = nullptr, int screenNumber = 0,

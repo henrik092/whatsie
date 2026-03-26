@@ -27,7 +27,6 @@ class WebEnginePage : public QWebEnginePage {
   Q_OBJECT
 public:
   WebEnginePage(QWebEngineProfile *profile, QObject *parent = nullptr);
-  void injectClassChangeObserver();
 
 protected:
   bool acceptNavigationRequest(const QUrl &url,
