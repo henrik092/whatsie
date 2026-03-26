@@ -5,7 +5,6 @@
 
 #include "common.h"
 #include "def.h"
-#include "dictionaries.h"
 #include "mainwindow.h"
 #include "settingsmanager.h"
 #include "webengineprofilemanager.h"
@@ -56,8 +55,6 @@ int main(int argc, char *argv[]) {
   QApplication::setOrganizationName("org.keshavnrj.ubuntu");
   QApplication::setApplicationVersion(VERSIONSTR);
 
-  qputenv("QTWEBENGINE_DICTIONARIES_PATH",
-          Dictionaries::GetDictionaryPath().toUtf8().constData());
 
   QCommandLineParser parser;
   parser.setApplicationDescription(

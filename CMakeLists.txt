@@ -245,69 +245,9 @@ install(FILES dist/linux/hicolor/symbolic/apps/com.ktechpit.whatsie-symbolic.svg
     DESTINATION ${DATADIR}/icons/hicolor/symbolic/apps
 )
 
-# Dictionary handling
-option(FLATPAK_BUILD "Build for Flatpak (skip dictionary installation)" OFF)
-
-if(NOT FLATPAK_BUILD)
-    # Find the qwebengine_convert_dict tool for Qt6.
-    # Search order covers the layouts seen in practice:
-    #   ${Qt6_DIR}/../../../libexec        — Fedora / generic prefix/libexec
-    #   ${Qt6_DIR}/../../qt6/libexec       — Debian/Ubuntu/snap (lib/qt6/libexec)
-    #   ${Qt6_DIR}/../../../lib/qt6/libexec — explicit Debian multiarch variant
-    #   ${Qt6_DIR}/../../../bin            — some distros place tools in bin
-    # Fall back to a plain PATH search so local developer installs still work.
-    if(QT_VERSION_MAJOR GREATER_EQUAL 6)
-        find_program(QWEBENGINE_CONVERT_DICT
-            NAMES qwebengine_convert_dict
-            HINTS
-                "${Qt6_DIR}/../../../libexec"
-                "${Qt6_DIR}/../../qt6/libexec"
-                "${Qt6_DIR}/../../../lib/qt6/libexec"
-                "${Qt6_DIR}/../../../bin"
-            NO_DEFAULT_PATH
-        )
-        if(NOT QWEBENGINE_CONVERT_DICT)
-            find_program(QWEBENGINE_CONVERT_DICT NAMES qwebengine_convert_dict)
-        endif()
-    endif()
-
-    if(QWEBENGINE_CONVERT_DICT)
-        message(STATUS "Found qwebengine_convert_dict: ${QWEBENGINE_CONVERT_DICT}")
-
-        # Create output directory for compiled dictionaries
-        set(DICTIONARIES_DIR ${CMAKE_CURRENT_BINARY_DIR}/qtwebengine_dictionaries)
-        file(MAKE_DIRECTORY ${DICTIONARIES_DIR})
-
-        # Get all dictionary files
-        file(GLOB DICT_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/dictionaries/*.dic")
-
-        # Create custom target for dictionary compilation
-        add_custom_target(build_dictionaries ALL)
-
-        foreach(DICT_FILE ${DICT_FILES})
-            get_filename_component(DICT_BASENAME ${DICT_FILE} NAME_WE)
-            set(OUTPUT_FILE ${DICTIONARIES_DIR}/${DICT_BASENAME}.bdic)
-            set(AFF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/dictionaries/${DICT_BASENAME}.aff)
-
-            add_custom_command(
-                OUTPUT ${OUTPUT_FILE}
-                COMMAND ${QWEBENGINE_CONVERT_DICT} ${DICT_FILE} ${OUTPUT_FILE}
-                DEPENDS ${DICT_FILE} ${AFF_FILE}
-                COMMENT "Building dictionary: ${DICT_BASENAME}"
-            )
-            add_custom_target(dict_${DICT_BASENAME} ALL DEPENDS ${OUTPUT_FILE})
-            add_dependencies(build_dictionaries dict_${DICT_BASENAME})
-        endforeach()
-
-        # Install compiled dictionaries
-        install(DIRECTORY ${DICTIONARIES_DIR}/
-            DESTINATION ${DATADIR}/org.keshavnrj.ubuntu/WhatSie/qtwebengine_dictionaries
-        )
-    else()
-        message(WARNING "qwebengine_convert_dict not found. Dictionary compilation will be skipped.")
-        message(WARNING "You can still manually place compiled .bdic files in the runtime directory.")
-    endif()
-endif()
+# Spell-check dictionaries are provided at runtime by the system hunspell
+# package (or the hunspell-dictionaries content snap in the snap build).
+# No compile-time dictionary conversion is needed.
 
 # Summary message
 message(STATUS "")

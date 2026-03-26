@@ -12,64 +12,71 @@ platforms:
   amd64:
   arm64:
 
+plugs:
+  hunspell-dictionaries:
+    content: hunspell-dictionaries
+    interface: content
+    target: $SNAP/usr/share/hunspell
+    default-provider: hunspell-dictionaries
+
 apps:
   whatsie:
     command: usr/bin/whatsie
+    environment:
+      DICPATH: $SNAP/usr/share/hunspell
     desktop: usr/share/applications/com.ktechpit.whatsie.desktop
     common-id: com.ktechpit.whatsie
     extensions:
       - kde-neon-6
     plugs:
-        - home
-        - network
-        - opengl
-        - browser-support
-        - network-status
-        - camera
-        - audio-playback
-        - audio-record
-        - removable-media
-        - screen-inhibit-control
-        - hardware-observe # to assist geoclue & qtpositioning
-        - network-observe  # to assist geoclue & qtpositioning
-        - network-bind  # to assist geoclue & qtpositioning
-        - mount-observe
+      - browser-support
+      - network-status
+      - camera
+      - audio-playback
+      - audio-record
+      - removable-media
+      - screen-inhibit-control
+      - hardware-observe
+      - network-observe
+      - network-bind
+      - mount-observe
+
 
 parts:
-   whatsie-build-src:
-     plugin: cmake
-     source: .
-     parse-info:
-       - dist/linux/com.ktechpit.whatsie.appdata.xml
-     build-packages:
-       - libxkbcommon-dev
-       - libdrm-dev
+  whatsie-build-src:
+    plugin: cmake
+    source: .
+    parse-info:
+      - dist/linux/com.ktechpit.whatsie.appdata.xml
+    build-snaps:
+      - hunspell-dictionaries
+    build-packages:
+      - libxkbcommon-dev
+      - libdrm-dev
 
-     stage-packages:
-       - libdrm2
+    stage-packages:
+      - libdrm2
 
-     cmake-parameters:
-       - -DCMAKE_BUILD_TYPE=Release
-       - -DCMAKE_INSTALL_PREFIX=/usr
+    cmake-parameters:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DCMAKE_INSTALL_PREFIX=/usr
 
-     override-build: |
-       craftctl default
-       
-       # Copy icon to meta/gui for snap icon
-       mkdir -p ${CRAFT_PART_INSTALL}/meta/gui
-       cp ${CRAFT_PART_INSTALL}/usr/share/icons/hicolor/256x256/apps/com.ktechpit.whatsie.png \
-         ${CRAFT_PART_INSTALL}/meta/gui/icon.png
-       
-       # Fix desktop icon path for snapped environment
-       sed -i \
-         "s|^Icon=.*|Icon=\${SNAP}/meta/gui/icon.png|" \
-         ${CRAFT_PART_INSTALL}/usr/share/applications/com.ktechpit.whatsie.desktop
+    override-build: |
+      craftctl default
 
-     prime:
-       - -usr/bug
-       - -usr/doc
-       - -usr/include
-       - -usr/lib/*/cmake
-       - -usr/share/ECM
-       - -usr/share/man
-       - -usr/share/lintian
+      mkdir -p ${CRAFT_PART_INSTALL}/meta/gui
+      cp ${CRAFT_PART_INSTALL}/usr/share/icons/hicolor/256x256/apps/com.ktechpit.whatsie.png \
+        ${CRAFT_PART_INSTALL}/meta/gui/icon.png
+
+      sed -i \
+        "s|^Icon=.*|Icon=\${SNAP}/meta/gui/icon.png|" \
+        ${CRAFT_PART_INSTALL}/usr/share/applications/com.ktechpit.whatsie.desktop
+
+    prime:
+      - -usr/bug
+      - -usr/doc
+      - -usr/include
+      - -usr/lib/*/cmake
+      - -usr/share/ECM
+      - -usr/share/man
+      - -usr/share/lintian
