@@ -249,12 +249,26 @@ install(FILES dist/linux/hicolor/symbolic/apps/com.ktechpit.whatsie-symbolic.svg
 option(FLATPAK_BUILD "Build for Flatpak (skip dictionary installation)" OFF)
 
 if(NOT FLATPAK_BUILD)
-    # Find the qwebengine_convert_dict tool for Qt6
+    # Find the qwebengine_convert_dict tool for Qt6.
+    # Search order covers the layouts seen in practice:
+    #   ${Qt6_DIR}/../../../libexec        — Fedora / generic prefix/libexec
+    #   ${Qt6_DIR}/../../qt6/libexec       — Debian/Ubuntu/snap (lib/qt6/libexec)
+    #   ${Qt6_DIR}/../../../lib/qt6/libexec — explicit Debian multiarch variant
+    #   ${Qt6_DIR}/../../../bin            — some distros place tools in bin
+    # Fall back to a plain PATH search so local developer installs still work.
     if(QT_VERSION_MAJOR GREATER_EQUAL 6)
         find_program(QWEBENGINE_CONVERT_DICT
             NAMES qwebengine_convert_dict
-            PATHS ${Qt6_DIR}/../../../libexec
+            HINTS
+                "${Qt6_DIR}/../../../libexec"
+                "${Qt6_DIR}/../../qt6/libexec"
+                "${Qt6_DIR}/../../../lib/qt6/libexec"
+                "${Qt6_DIR}/../../../bin"
+            NO_DEFAULT_PATH
         )
+        if(NOT QWEBENGINE_CONVERT_DICT)
+            find_program(QWEBENGINE_CONVERT_DICT NAMES qwebengine_convert_dict)
+        endif()
     endif()
 
     if(QWEBENGINE_CONVERT_DICT)
@@ -287,7 +301,7 @@ if(NOT FLATPAK_BUILD)
 
         # Install compiled dictionaries
         install(DIRECTORY ${DICTIONARIES_DIR}/
-            DESTINATION ${DATADIR}/org.keshavnrj.ubuntu/WhatSie
+            DESTINATION ${DATADIR}/org.keshavnrj.ubuntu/WhatSie/qtwebengine_dictionaries
         )
     else()
         message(WARNING "qwebengine_convert_dict not found. Dictionary compilation will be skipped.")
