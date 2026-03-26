@@ -2,15 +2,13 @@
 #include "ui_moreapps.h"
 
 #include <QDesktopServices>
+#include <QPointer>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QPushButton>
-#include <QRandomGenerator>
 #include <algorithm>
-#include <cstdlib>
-#include <ctime>
 #include <random>
 
 MoreApps::MoreApps(QWidget *parent, QNetworkAccessManager *nam,
@@ -212,28 +210,40 @@ void MoreApps::setRemoteIcon(const QUrl &iconUrl, QLabel *lb) {
                        QNetworkRequest::PreferCache);
 
   QNetworkReply *reply = mNetworkManager->get(QNetworkRequest(request));
+  QPointer<QLabel> labelPtr(lb);
   connect(reply, &QNetworkReply::finished, this, [=]() {
     if (reply->error() == QNetworkReply::NoError) {
-      if (lb != nullptr) {
+      if (labelPtr) {
         auto replyBytes = reply->readAll();
         QPixmap pixmap;
         pixmap.loadFromData(replyBytes);
-        // qDebug() << "after load" << lb->size();
-        lb->setPixmap(pixmap.scaled(lb->size(), Qt::KeepAspectRatio,
-                                    Qt::SmoothTransformation));
+        labelPtr->setPixmap(pixmap.scaled(labelPtr->size(), Qt::KeepAspectRatio,
+                                          Qt::SmoothTransformation));
       }
     } else {
       qDebug() << "Error getting icon" << iconUrl.toString();
-      if (lb != nullptr) {
+      if (labelPtr) {
         QByteArray data = QByteArray::fromBase64(mSnapIconBin.toLatin1());
         QPixmap pixmap;
         pixmap.loadFromData(data, "PNG");
-        lb->setPixmap(QPixmap(pixmap.scaled(lb->size(), Qt::KeepAspectRatio,
-                                            Qt::SmoothTransformation)));
+        labelPtr->setPixmap(pixmap.scaled(labelPtr->size(), Qt::KeepAspectRatio,
+                                          Qt::SmoothTransformation));
       }
     }
     reply->deleteLater();
   });
+}
+
+void MoreApps::rotateApps() {
+  if (mAppList.isEmpty())
+    return;
+  QLayoutItem *item;
+  while ((item = ui->horizontalLayout->takeAt(0)) != nullptr) {
+    if (item->widget())
+      item->widget()->deleteLater();
+    delete item;
+  }
+  showApps();
 }
 
 void MoreApps::showApps() {
