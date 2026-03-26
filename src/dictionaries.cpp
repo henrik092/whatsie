@@ -44,7 +44,7 @@ QString Dictionaries::GetDictionaryPath() {
   }
 
   // inside the installed Qt directories
-  dict_path = QLibraryInfo::location(QLibraryInfo::DataPath) +
+  dict_path = QLibraryInfo::path(QLibraryInfo::DataPath) +
               QDir::separator() + dict_dir;
   if (QDir(dict_path).exists()) {
     return dict_path;

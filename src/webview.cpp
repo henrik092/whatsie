@@ -2,9 +2,11 @@
 
 #include <QContextMenuEvent>
 #include <QMenu>
-#include <QWebEngineContextMenuData>
 #include <QWebEngineProfile>
 #include <mainwindow.h>
+#include <QWebEngineContextMenuRequest>
+
+using QWebEngineContextMenuData = QWebEngineContextMenuRequest;
 
 WebView::WebView(QWidget *parent, QStringList dictionaries)
     : QWebEngineView(parent), m_dictionaries(dictionaries) {
@@ -63,8 +65,7 @@ void WebView::wheelEvent(QWheelEvent *event) {
 }
 
 void WebView::contextMenuEvent(QContextMenuEvent *event) {
-
-  auto menu = page()->createStandardContextMenu();
+  auto menu = createStandardContextMenu();
   menu->setAttribute(Qt::WA_DeleteOnClose, true);
   // hide reload, back, forward, savepage, copyimagelink menus
   foreach (auto *action, menu->actions()) {
@@ -77,8 +78,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event) {
     }
   }
 
-  const QWebEngineContextMenuData &data = page()->contextMenuData();
-  Q_ASSERT(data.isValid());
+  const QWebEngineContextMenuRequest &data = *lastContextMenuRequest();
 
   // allow context menu on image
   if (data.mediaType() == QWebEngineContextMenuData::MediaTypeImage) {
@@ -107,7 +107,7 @@ void WebView::contextMenuEvent(QContextMenuEvent *event) {
 
   if (pageWebengineProfile->isSpellCheckEnabled()) {
     auto subMenu = menu->addMenu(tr("Select Language"));
-    for (const QString &dict : qAsConst(m_dictionaries)) {
+    for (const QString &dict : std::as_const(m_dictionaries)) {
       auto action = subMenu->addAction(dict);
       action->setCheckable(true);
       action->setChecked(languages.contains(dict));

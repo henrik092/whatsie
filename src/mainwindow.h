@@ -1,39 +1,16 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QAction>
-#include <QApplication>
-#include <QFileDialog>
-#include <QGraphicsOpacityEffect>
-#include <QIcon>
 #include <QMainWindow>
 #include <QMenu>
-#include <QMessageBox>
-#include <QProgressBar>
-#include <QRadioButton>
-#include <QStatusBar>
-#include <QStyle>
-#include <QStyleFactory>
 #include <QSystemTrayIcon>
-#include <QWebEngineContextMenuData>
-#include <QWebEngineCookieStore>
-#include <QWebEngineFullScreenRequest>
-#include <QWebEngineProfile>
-#include <QWebEngineSettings>
-#include <QWebEngineView>
 
-#include "about.h"
 #include "autolockeventfilter.h"
-#include "dictionaries.h"
 #include "downloadmanagerwidget.h"
 #include "lock.h"
 #include "notificationpopup.h"
-#include "rateapp.h"
-#include "requestinterceptor.h"
 #include "settingswidget.h"
-#include "theme.h"
 #include "webenginepage.h"
-#include "webview.h"
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
@@ -53,7 +30,6 @@ public slots:
   void updatePageTheme();
   void handleWebViewTitleChanged(const QString &title);
   void handleLoadFinished(bool loaded);
-  void handleDownloadRequested(QWebEngineDownloadItem *download);
   void showSettings(bool isAskedByCLI = false);
   void showAbout();
   void lockApp();
@@ -71,13 +47,11 @@ private:
   void createTrayIcon();
   void createWebEngine();
   QString getPageTheme() const;
-  void handleCookieAdded(const QNetworkCookie &cookie);
   void doAppReload();
   void askToReloadPage();
   void updateSettingsUserAgentWidget();
   void createWebPage(bool offTheRecord = false);
   void initSettingWidget();
-  void initGlobalWebProfile();
   void tryLock();
   void checkLoadedCorrectly();
   void loadingQuirk(const QString &test);
