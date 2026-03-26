@@ -78,7 +78,6 @@ set(SOURCES
     src/about.cpp
     src/automatictheme.cpp
     src/common.cpp
-    src/dictionaries.cpp
     src/downloadmanagerwidget.cpp
     src/downloadwidget.cpp
     src/lock.cpp
@@ -107,7 +106,6 @@ set(HEADERS
     src/automatictheme.h
     src/common.h
     src/def.h
-    src/dictionaries.h
     src/downloadmanagerwidget.h
     src/downloadwidget.h
     src/lock.h

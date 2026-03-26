@@ -195,19 +195,6 @@ void MainWindow::initSettingWidget() {
                     QWebEngineSettings::PlaybackRequiresUserGesture, checked);
           });
 
-  connect(m_settingsWidget, &SettingsWidget::dictChanged, m_settingsWidget,
-          [=](QString dictName) {
-            if (m_webEngine && m_webEngine->page())
-              m_webEngine->page()->profile()->setSpellCheckLanguages(
-                  QStringList() << dictName);
-          });
-
-  connect(m_settingsWidget, &SettingsWidget::spellCheckChanged,
-          m_settingsWidget, [=](bool checked) {
-            if (m_webEngine && m_webEngine->page())
-              m_webEngine->page()->profile()->setSpellCheckEnabled(checked);
-          });
-
   connect(m_settingsWidget, &SettingsWidget::zoomChanged, m_settingsWidget,
           [=]() {
             if (windowState() == Qt::WindowNoState ||
@@ -262,7 +249,6 @@ void MainWindow::initSettingWidget() {
                                           .settings()
                                           .value("lockscreen", false)
                                           .toBool());
-  m_settingsWidget->loadDictionaries(m_dictionaries);
 }
 
 void MainWindow::showSettings(bool isAskedByCLI) {

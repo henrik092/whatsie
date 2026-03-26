@@ -2,14 +2,13 @@
 
 #include <QContextMenuEvent>
 #include <QMenu>
-#include <QWebEngineProfile>
 #include <mainwindow.h>
 #include <QWebEngineContextMenuRequest>
 
 using QWebEngineContextMenuData = QWebEngineContextMenuRequest;
 
-WebView::WebView(QWidget *parent, QStringList dictionaries)
-    : QWebEngineView(parent), m_dictionaries(dictionaries) {
+WebView::WebView(QWidget *parent)
+    : QWebEngineView(parent) {
 
   QObject *parentMainWindow = this->parent();
   while (!parentMainWindow->objectName().contains("MainWindow")) {
@@ -91,33 +90,6 @@ void WebView::contextMenuEvent(QContextMenuEvent *event) {
     return;
   }
 
-  auto pageWebengineProfile = page()->profile();
-  const QStringList &languages = pageWebengineProfile->spellCheckLanguages();
-  menu->addSeparator();
-  auto *spellcheckAction = new QAction(tr("Check Spelling"), menu);
-  spellcheckAction->setCheckable(true);
-  spellcheckAction->setChecked(pageWebengineProfile->isSpellCheckEnabled());
-  connect(spellcheckAction, &QAction::toggled, this,
-          [pageWebengineProfile](bool toogled) {
-            pageWebengineProfile->setSpellCheckEnabled(toogled);
-            SettingsManager::instance().settings().setValue("sc_enabled",
-                                                            toogled);
-          });
-  menu->addAction(spellcheckAction);
-
-  if (pageWebengineProfile->isSpellCheckEnabled()) {
-    auto subMenu = menu->addMenu(tr("Select Language"));
-    for (const QString &dict : std::as_const(m_dictionaries)) {
-      auto action = subMenu->addAction(dict);
-      action->setCheckable(true);
-      action->setChecked(languages.contains(dict));
-      connect(
-          action, &QAction::triggered, this, [pageWebengineProfile, dict]() {
-            pageWebengineProfile->setSpellCheckLanguages(QStringList() << dict);
-            SettingsManager::instance().settings().setValue("sc_dict", dict);
-          });
-    }
-  }
   connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
   menu->popup(event->globalPos());
 }

@@ -72,7 +72,6 @@ private:
   DownloadManagerWidget m_downloadManagerWidget;
   QScopedPointer<QWebEngineProfile> m_otrProfile;
   int m_correctlyLoadedRetries = 4;
-  QStringList m_dictionaries;
 
   QAction *m_reloadAction = nullptr;
   QAction *m_minimizeAction = nullptr;

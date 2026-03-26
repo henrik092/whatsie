@@ -85,11 +85,6 @@ void WebEngineProfileManager::applyUserSettings() {
     m_profile->setHttpUserAgent(
         s.value(QStringLiteral("useragent"), defaultUserAgentStr).toString());
 
-    m_profile->setSpellCheckEnabled(
-        s.value(QStringLiteral("sc_enabled"), true).toBool());
-    m_profile->setSpellCheckLanguages(
-        {s.value(QStringLiteral("sc_dict"), QStringLiteral("en-US")).toString()});
-
     m_profile->settings()->setAttribute(
         QWebEngineSettings::PlaybackRequiresUserGesture,
         s.value(QStringLiteral("autoPlayMedia"), false).toBool());

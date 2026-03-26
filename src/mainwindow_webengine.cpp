@@ -6,7 +6,6 @@
 #include <QWebEngineNotification>
 
 #include "common.h"
-#include "dictionaries.h"
 #include "webengineprofilemanager.h"
 #include "webview.h"
 
@@ -21,9 +20,7 @@ void MainWindow::createWebEngine() {
   widgetSize.setHorizontalStretch(1);
   widgetSize.setVerticalStretch(1);
 
-  m_dictionaries = Dictionaries::GetDictionaries();
-
-  WebView *webEngineView = new WebView(this, m_dictionaries);
+  WebView *webEngineView = new WebView(this);
   setCentralWidget(webEngineView);
   webEngineView->setSizePolicy(widgetSize);
   webEngineView->show();
