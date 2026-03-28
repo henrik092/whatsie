@@ -29,6 +29,14 @@ apps:
     extensions:
       - kde-neon-6
     plugs:
+      - home
+      - desktop
+      - desktop-legacy
+      - opengl
+      - x11
+      - wayland
+      - network
+      - unity7
       - browser-support
       - network-status
       - camera
