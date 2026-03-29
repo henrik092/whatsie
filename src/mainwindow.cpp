@@ -23,13 +23,14 @@ extern bool   defaultAppAutoLock;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      m_trayIconNormal(":/icons/app/notification/whatsie-notify.png"),
+      m_notifier("WhatSie", this),
+      m_trayIconNormal(themeIcon("whatsie-tray", ":/icons/app/notification/whatsie-notify.png")),
       m_notificationsTitleRegExp("^\\([1-9]\\d*\\).*"),
       m_unreadMessageCountRegExp("\\([^\\d]*(\\d+)[^\\d]*\\)") {
 
   setObjectName("MainWindow");
   setWindowTitle(QApplication::applicationName());
-  setWindowIcon(QIcon(":/icons/app/icon-64.png"));
+  setWindowIcon(themeIcon("whatsie", ":/icons/app/icon-64.png"));
   setMinimumWidth(525);
   setMinimumHeight(448);
   restoreMainWindow();
@@ -291,20 +292,25 @@ void MainWindow::showNotification(QString title, QString message) {
   if (SettingsManager::instance()
               .settings()
               .value("notificationCombo", 1)
-              .toInt() == 0 &&
-      m_systemTrayIcon != nullptr) {
+              .toInt() == 0) {
     auto timeout = SettingsManager::instance()
                        .settings()
                        .value("notificationTimeOut", 9000)
                        .toInt();
-    if (userDesktopEnvironment.contains("gnome", Qt::CaseInsensitive)) {
-      m_systemTrayIcon->showMessage(title, message, QSystemTrayIcon::Critical,
-                                    0);
-    } else {
-      m_systemTrayIcon->showMessage(
-          title, message, QIcon(":/icons/app/notification/whatsie-notify.png"),
-          timeout);
-    }
+
+    auto ntf = notify(title, message, timeout);
+    QObject::connect(ntf.get(), &Notification::Event::actionInvoked, this,
+                     [this] (const QString & action) {
+                       qDebug() << "Action: " << action;
+                       if (action == "open")
+                         this->notificationClicked();
+                     });
+
+    ntf->setIconFromPixmap(windowIcon()
+                             .pixmap(windowIcon()
+                                       .actualSize(QSize(32,32), QIcon::Normal),
+                                       QIcon::Normal, QIcon::On));
+    ntf->show();
   } else {
     auto popup = new NotificationPopup(m_webEngine);
     connect(popup, &NotificationPopup::notification_clicked, this,
@@ -410,6 +416,17 @@ void MainWindow::loadSchemaUrl(const QString &arg) {
     triggerNewChat(query.queryItemValue("phone"),
                    query.queryItemValue("text"));
   }
+}
+
+Notification::EventPtr MainWindow::notify(const QString& title, const QString& body, qint32 timeout) {
+  Notification::EventPtr ntf = m_notifier.createNotification(title, body, "whatsie");
+
+  ntf->setTimeout(timeout);
+  ntf->setCategory("im.received");
+  ntf->addAction("open", tr("Open"));
+  ntf->setHint("action-icons", false);
+  ntf->setHintString("image-path", "whatsie");
+  return ntf;
 }
 
 void MainWindow::newChat() {

@@ -47,6 +47,19 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_VERSION_MAJOR}.${QT_VERSION_MINOR} REQUI
     Network
 )
 
+find_package(notify-qt${QT_VERSION_MAJOR} QUIET CONFIG)
+if (notify-qt${QT_VERSION_MAJOR}_FOUND)
+    add_library(notify-qt ALIAS notify-qt${QT_VERSION_MAJOR})
+elseif (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/src/libnotify-qt/CMakeLists.txt")
+    add_subdirectory(src/libnotify-qt)
+else()
+    message(FATAL_ERROR
+        "notify-qt${QT_VERSION_MAJOR} package not found and the src/libnotify-qt submodule "
+        "is missing.\n"
+        "Please either install notify-qt${QT_VERSION_MAJOR} "
+        "or initialize/update the src/libnotify-qt git submodule.")
+endif()
+
 # Compiler flags
 add_compile_options(
     -fstack-protector-strong
@@ -82,6 +95,7 @@ set(SOURCES
     src/downloadwidget.cpp
     src/lock.cpp
     src/main.cpp
+    src/identicons.cpp
     src/mainwindow.cpp
     src/mainwindow_lock.cpp
     src/mainwindow_tray.cpp
@@ -93,6 +107,7 @@ set(SOURCES
     src/theme.cpp
     src/utils.cpp
     src/webenginepage.cpp
+    src/webenginenotifproxy.cpp
     src/webengineprofilemanager.cpp
     src/webview.cpp
     src/widgets/elidedlabel/elidedlabel.cpp
@@ -109,6 +124,7 @@ set(HEADERS
     src/downloadmanagerwidget.h
     src/downloadwidget.h
     src/lock.h
+    src/identicons.h
     src/mainwindow.h
     src/notificationpopup.h
     src/permissiondialog.h
@@ -122,6 +138,7 @@ set(HEADERS
     src/webenginepage.h
     src/webengineprofilemanager.h
     src/webview.h
+    src/webenginenotifproxy.h
     src/widgets/elidedlabel/elidedlabel.h
     src/widgets/scrolltext/scrolltext.h
     src/widgets/MoreApps/moreapps.h
@@ -185,6 +202,7 @@ target_link_libraries(whatsie PRIVATE
     Qt${QT_VERSION_MAJOR}::WebEngineWidgets
     Qt${QT_VERSION_MAJOR}::Positioning
     Qt${QT_VERSION_MAJOR}::Network
+    notify-qt
     X11
 )
 

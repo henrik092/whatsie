@@ -1,5 +1,8 @@
 // Tray icon, actions, and window-title/notification-count handling.
 #include "mainwindow.h"
+#include "common.h"
+
+#include <algorithm>
 
 #include <QShortcut>
 #include <QStyleHints>
@@ -85,8 +88,6 @@ void MainWindow::createTrayIcon() {
   m_systemTrayIcon->setContextMenu(m_trayIconMenu);
   connect(m_trayIconMenu, &QMenu::aboutToShow, this,
           &MainWindow::checkWindowState);
-  connect(m_systemTrayIcon, &QSystemTrayIcon::messageClicked, this,
-          [this]() { notificationClicked(); });
   connect(m_systemTrayIcon, &QSystemTrayIcon::activated, this,
           &MainWindow::iconActivated);
 
@@ -131,11 +132,10 @@ void MainWindow::iconActivated(QSystemTrayIcon::ActivationReason reason) {
 
 const QIcon MainWindow::getTrayIcon(const int &notificationCount) const {
   if (notificationCount == 0)
-    return QIcon(":/icons/app/notification/whatsie-notify.png");
-  if (notificationCount >= 10)
-    return QIcon(":/icons/app/notification/whatsie-notify-10.png");
-  return QIcon(":/icons/app/notification/whatsie-notify-" +
-               QString::number(notificationCount) + ".png");
+    return themeIcon("whatsie-tray", ":/icons/app/notification/whatsie-notify.png");
+
+  return themeIcon("whatsie-tray-attentions",
+    QString(":/icons/app/notification/whatsie-notify-%1.png").arg(std::clamp(notificationCount, 1, 10)));
 }
 
 void MainWindow::handleWebViewTitleChanged(const QString &title) {
@@ -162,6 +162,6 @@ void MainWindow::handleWebViewTitleChanged(const QString &title) {
     }
   } else {
     m_systemTrayIcon->setIcon(m_trayIconNormal);
-    setWindowIcon(m_trayIconNormal);
+    setWindowIcon(themeIcon("whatsie", ":/icons/app/icon-64.png"));
   }
 }
