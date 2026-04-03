@@ -87,6 +87,18 @@
   <content_rating type="oars-1.0" />
 
   <releases>
+    <release version="5.1.0" date="2026-04-03">
+      <description>
+        <p>Minor release focused on build-system and runtime stability improvements:</p>
+        <ul>
+          <li>Migrated primary build workflow to CMake + Ninja for Qt 6 development</li>
+          <li>Refined Qt 6 WebEngine integration and permission handling paths</li>
+          <li>Improved desktop notification delivery by using org.freedesktop.Notifications directly on Qt 6</li>
+          <li>Improved session persistence behavior via consistent profile handling</li>
+          <li>Updated in-app theme application logic for current WhatsApp Web changes</li>
+        </ul>
+      </description>
+    </release>
     <release version="5.0.0" date="2026-03-26">
       <description>
         <p>Major release — Qt 6 port with significant improvements:</p>
