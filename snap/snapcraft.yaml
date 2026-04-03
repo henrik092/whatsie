@@ -58,6 +58,7 @@ parts:
       - dist/linux/com.ktechpit.whatsie.appdata.xml
     build-snaps:
       - hunspell-dictionaries
+      - cmake/latest/stable
     build-packages:
       - libxkbcommon-dev
       - libdrm-dev
